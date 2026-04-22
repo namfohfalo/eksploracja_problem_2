@@ -1,11 +1,45 @@
-Witaj!
+# Instrukcja
 
-W tym zadaniu wcielisz się w analityka danych w wyimaginowanym świecie Pokemon. Oczywiście nikt nie wymaga od Ciebie ekstensywnej wiedzy o Pokemonach, natomiast badacze Pokemon, którzy będą korzystali z twoich usług liczą na twoje umiejętności analityczne, krytycznego myślenia i znajomość algorytmów eksploracji danych.
+```
+    python -m venv venv
+    pip install -r "requirements.txt"
+    cd data
+    python data/download.py
+```
 
-W katalogu "data/" znajdziesz dane dotyczące Pokemonów. Oto przygotowane dla ciebie zadania:
+# Zadanie
 
- - Kiedy odkryjemy nowego Pokemona, na podstawie eksperymentów potrafimy wyznaczyć jego statystki oraz typ. Niesposób jednak określić czy taki Pokemon powinien zostać zakwalifikowany jako legendarny, czy nie. Opracuj model, który nam w tym pomoże.
- - Kiedy badamy nowego Pokemona, eksperyment dotyczący odkrywania jego typów nie zawsze daje poprawne rezultaty. Czy możesz zbudować model, który na podstawie innych statystyk będzie potrafił zakwalifikować Pokemona do określonego typu?
+W tym zadaniu wcielacie się w programistów, których zadaniem jest napisanie efektywnej metody odkrywania reguł asocjacyjnych. Pamiętajcie - liczy się ostateczny czas, więc aspekty takie jak dobór języka programowania, dobór algorytmów, sposób kompilacji i uruchomienia, zrównoleglenie, dobór bibliotek... mogą mieć wpływ na rozwiązanie.
 
+Czas przetwarzania zbioru będzie miał bezpośrednie przełożenie na liczbę uzystkanych punków.
 
-Możesz użyć reguł asocjacyjnych lub klasyfikatora - wybór należy do Ciebie. 
+Algorytmy będą testowane z użyciem zbioru, który można pobrać za pomocą skryptu w katalogu data.
+
+# Materiały 
+
+Do dyspozycji masz rozwiązania problemu napisane w języku python:
+ - slow_solution_apriori.py : implementuje "od zera" algorytm apriori
+ - slow_solution_fpgrowth.py implementuje "od zera" algorytm FP-Growth
+
+# Interfejs
+
+Twoje rozwiązanie powinno implementować metodę
+```solve(min_support, min_confidence, verbose=False)```
+
+Bez względu na język programowania, metoda ta jest owinięciem twojego rozwiązania w języku python.
+
+Parametr verbose kontroluje to, czy wywołanie generuje informacje o wykonaniu.
+
+Metoda powinna zwrócić listę reguł postaci:
+
+A=>B, support = s, confidence = c
+
+zakodowanych jako słownik:
+```{
+    'A' : List,
+    'B' : List,
+    'supp' : number,
+    'conf' : number
+
+}```
+
