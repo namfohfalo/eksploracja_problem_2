@@ -71,7 +71,7 @@ def solve(min_support, min_confidence, verbose=True):
     # --- KROK 5: Raportowanie i wypisywanie wszystkich reguł ---
     if verbose:
         print("\n" + "=" * 50)
-        print(f"RAPORT: FAST SOLUTION (FINAL VERSION)")
+        print(f"RAPORT: FAST SOLUTION")
         print(f"Czas wykonania: {execution_time:.4f} sekund")
         print(f"Liczba reguł: {len(rules)}")
         print("-" * 50)
