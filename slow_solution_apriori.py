@@ -22,6 +22,7 @@ def load_data(path):
         return []
     return list(transactions.values())
 
+
 def get_frequent_1_itemsets(transactions, min_support):
     """
     Generuje zbiory częste o liczności 1
@@ -32,6 +33,7 @@ def get_frequent_1_itemsets(transactions, min_support):
             counts[item] += 1
     n = len(transactions)
     return {frozenset([item]): count / n for item, count in counts.items() if count / n >= min_support}
+
 
 def generate_candidates(prev_frequent_itemsets, k):
     """
@@ -46,22 +48,19 @@ def generate_candidates(prev_frequent_itemsets, k):
                 candidates.add(union)
     return candidates
 
+
 def generate_rules(frequent_itemsets, min_confidence):
     """
     Generuje reguły asocjacyjne na podstawie zbiorów częstych.
-    frequent_itemsets: słownik {frozenset: support}
     """
     rules = []
     for itemset, support in frequent_itemsets.items():
         if len(itemset) > 1:
-            # Dla każdego zbioru (np. {A, B, C}) generujemy pary podzbiorów
-            # Na podstawie podzbiorów generujemy reguły, antecedent -> consequent (tylko jeżeli confidence > zadany)
             for i in range(1, len(itemset)):
                 for antecedent in combinations(itemset, i):
                     antecedent = frozenset(antecedent)
                     consequent = itemset - antecedent
-                    
-                    # obliczamy Confidence = Support(A U B) / Support(A)
+
                     support_a = frequent_itemsets.get(antecedent)
                     if support_a:
                         confidence = support / support_a
@@ -74,47 +73,57 @@ def generate_rules(frequent_itemsets, min_confidence):
                             })
     return rules
 
-def solve(min_support, min_confidence, verbose = True):
+
+def solve(min_support, min_confidence, verbose=True):
+    start_time = time.perf_counter()
     MIN_SUPPORT = min_support
     MIN_CONFIDENCE = min_confidence
+
     transactions = load_data(config.datapath)
     n_trans = len(transactions)
+
     # 1. Szukanie zbiorów częstych (Apriori)
     l1 = get_frequent_1_itemsets(transactions, MIN_SUPPORT)
     all_frequent = {**l1}
     current_frequent = l1
-    
+
     k = 2
     while current_frequent:
-        if not verbose:
-            print(f'Przetwarzam poziom {k}')
         candidates = generate_candidates(current_frequent.keys(), k)
         if not candidates: break
-        
+
         counts = defaultdict(int)
-        if verbose:
-            for trans in transactions:
-                for cand in candidates:
-                    if cand.issubset(trans):
-                        counts[cand] += 1
-        else:
-            from tqdm import tqdm
-            for trans in tqdm(transactions):
-                for cand in candidates:
-                    if cand.issubset(trans):
-                        counts[cand] += 1
+        # Optymalizacja wyświetlania paska postępu tylko gdy nie-verbose
+        for trans in transactions:
+            for cand in candidates:
+                if cand.issubset(trans):
+                    counts[cand] += 1
+
         current_frequent = {itemset: c / n_trans for itemset, c in counts.items() if c / n_trans >= MIN_SUPPORT}
         all_frequent.update(current_frequent)
         k += 1
-    
+
     # 2. Generowanie reguł
-    if not verbose:
-        print(f"Generowanie reguł z {len(all_frequent)} zbiorów częstych...")
     rules = generate_rules(all_frequent, MIN_CONFIDENCE)
-    if not verbose:
-        print(f'Wygenerowano {len(rules)} reguł.')
+
+    end_time = time.perf_counter()
+    execution_time = end_time - start_time
+
+    if verbose:
+        print("\n" + "=" * 50)
+        print(f"RAPORT: APRIORI (SLOW SOLUTION)")
+        print(f"Czas wykonania: {execution_time:.4f} sekund")
+        print(f"Parametry: support={MIN_SUPPORT}, confidence={MIN_CONFIDENCE}")
+        print(f"Liczba reguł: {len(rules)}")
+        print("-" * 50)
         for rule in rules:
-            print(f'{rule['A']}=>{rule['B']} Support: {rule['supp']}, Confidence: {rule['conf']}')
+            ant = "{" + ", ".join(list(rule['A'])) + "}"
+            cons = "{" + ", ".join(list(rule['B'])) + "}"
+            print(f"{ant:30} => {cons:30} | supp: {rule['supp']:.3f} | conf: {rule['conf']:.3f}")
+        print("=" * 50 + "\n")
+
     return rules
+
+
 if __name__ == "__main__":
-    solve(config.min_support, config.min_confidence, verbose=False)
+    solve(config.min_support, config.min_confidence, verbose=True)

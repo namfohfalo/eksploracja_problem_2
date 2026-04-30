@@ -2,6 +2,9 @@
 
 ```
     python -m venv venv
+    Linux/Mac: source venv/bin/activate
+    Windows CMD: .\venv\Scripts\activate.bat
+    Windows PS: .\venv\Scripts\Activate.ps1
     pip install -r "requirements.txt"
     cd data
     python data/download.py
